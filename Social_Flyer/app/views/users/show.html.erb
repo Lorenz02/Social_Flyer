@@ -1,0 +1,108 @@
+afito <br/>
+<div class="row">
+        <div class="col s12 m7">
+
+          <div class="card horizontal">
+
+            <div class="card-image" style="width: 150px; height: 150px;",align ="center">
+
+
+              <% if @show.image.thumb.url!=nil %>
+
+                 <%= image_tag @show.image.thumb.url %>
+              <%else%>
+              <%= image_tag 'nopropic.jpg' %>
+              <%end%>
+            </div>
+           <div id='numfoll'class="card-content">
+             <div > pagina di <%=@show.name%>  </br>
+               <i class="material-icons"> perm_identity</i> <%=@show.username%> </div>
+             </br>
+             seguito da : <%=FollowerUser.where(followed_id:@show.id).count%> persone
+             </br>
+            <%= link_to upfollow_path  do%> <i class="material-icons">loop</i> <%end%> aggiorna numero followers
+
+            </div>
+          </div>
+        </div>
+     <div class="col2 s12 m7"style="width: 150px; height: 150px;">
+       <div class="card horizontal">
+
+         <div class="card-content">
+
+            <div id='follow'>
+             <%if !current_user.admin? || !FollowerUser.where(follower_id: current_user.id,followed_id:@show.id).exists? && current_user.id != @show.id %>
+              <%if can? :follow, @show %>
+              <%= button_to 'follow', follow_user_path(params[:id]), remote: true,class:"waves-effect waves-light btn" %>
+              <% end%>
+            <%end%>
+            <%if !current_user.admin? || FollowerUser.where(follower_id: current_user.id,followed_id:@show.id).exists? && current_user.id != @show.id%>
+                  <%if can? :unfollow, @show %>
+                   <%= button_to 'unfollow', unfollow_user_path(params[:id]), remote: true,class:"waves-effect waves-light btn"%>
+                  <% end%>
+            <%end%>
+
+            </div>
+            </br>
+            <div id="report">
+            <%if can? :report, @show%>
+            <%= button_to "segnala utente" , show_report_user_path(@show.id), method: :get, remote: true,class:"waves-effect waves-light btn"%>
+
+            <%end%>
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- METTERE IL RENDER DI GIULIO COsì SONO UGUALI -->
+    <p class="flow-text"> <i class="material-icons">store</i>Negozi seguiti: <%=FollowStore.where(user_id:@show.id).count%> </p>
+    <%if FollowStore.where(user_id:@show.id)!=nil%>
+        <% FollowStore.where(user_id:@show.id).each do |n|%>
+              <%= render "stores/store", store: Store.find(n.store_id) %>
+                <%end%>
+             <%end%>
+
+
+<!-- COMMENTI DELL'UTENTE -->
+<p class="flow-text">Commenti di <%=@show.name%> </p>
+<ul class="collection">
+<%if Comment.where(user_id:@show.id).first != nil%>
+   <% Comment.where(user_id:@show.id).each do |c|%>
+  <div class="row">
+
+          <div class="col s12 m7">
+
+
+              <div class ="card content">
+                <li class="collection-item avatar"><%= render "comments/comment", comment: c, store: true%></li>
+
+            </div>
+          </div>
+        </div>
+        <%end%>
+      <%end%>
+
+      </ul>
+
+
+<p class="flow-text"> Offerte seguite da <%=@show.name%> </p>
+<ul class="collection">
+  <%if FollowProduct.where(user_id:@show.id).first != nil%>
+     <% FollowProduct.where(user_id:@show.id).each do |p|%>
+    <div class="row">
+        <div class="col s12 m7">
+
+             <li> segue l'offerta del prodotto <%=Product.find(p.product_id).name%>
+                  venduto da <%=Store.where(id:Product.find(p.product_id).store_id).first.name%><br>vai al negozio --> <%= link_to store_path(Product.find(p.product_id).store_id)  do%> <i class="material-icons">store</i> <%end%></li>
+
+        </div>
+      </div>
+      <%end%>
+      <%end%>
+      </ul>
+      </div>
+</div>

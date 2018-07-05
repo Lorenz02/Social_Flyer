@@ -1,0 +1,155 @@
+<h1> Il nome del negozio è:
+<%= @store.name %> </h1>
+<p>
+  <div class="card horizontal small">
+    <div class="card-image waves-effect waves-block waves-light">
+      <% if @store.image.thumb.url!=nil %>
+      <%= image_tag @store.image.superpic.url %>
+      <%else%>
+      <%= image_tag 'nopropic.jpg', style: "width: 150px; height: 150px;" %>
+      <% end %>
+    </div>
+    <div class="card-content">
+      <span class="card-title activator grey-text text-darken-4"><%= @store.name %><i class="material-icons right">more_vert</i></span>
+    </div>
+    <div class="card-reveal">
+      <span class="card-title grey-text text-darken-4">Card Title<i class="material-icons right">close</i></span>
+      <p><ul><li>Nome: <%= @store.name%></li>
+        <li> posizione: <%= @store.location%></li>
+        <li> numero follower: <%= @store.followers.count%></li>
+        <li> gradimento medio: <%= (@store.get_upvotes.count-@store.get_upvotes.count)/2%>
+      </ul></p>
+    </div>
+  </div>
+
+<div class='vote'>
+  <table>
+    <tr>
+      <th> like </th>
+      <th> unlike </th>
+    </tr>
+
+    <tr>
+      <td><%= link_to like_store_path(@show), method: :put do %>  <i class="material-icons">thumb_up</i> <%end%></td>
+      <td><%= link_to  unlike_store_path(@show), method: :put do %> <i class="material-icons">thumb_down</i> <%end%></td>
+    </tr>
+
+    <tr>
+      <td><%=@show.get_upvotes.count%></td>
+      <td><%=@show.get_downvotes.count%></td>
+    </tr>
+    <tr>
+  </table>
+<div id='follow'>
+		<%if can? :follow, @show%>
+
+				<%= button_to 'follow del negozio', follow_store_path(@show), method: :post, remote: true , class: "waves-effect waves-light btn-large"%>
+
+		<%end%>
+		<%if can? :unfollow, @show%>
+
+
+        <%= button_to 'unfollow del negozio', unfollow_store_path(@show), method: :post, remote: true, class: "waves-effect waves-light btn-large" %>
+
+		<%end%>
+    <h1> numero followerZ <%= @show.followers.count%> </h1>
+
+  </div>
+<table>
+  <thead>
+  <tr>
+    <th>nome</th>
+    <th>prezzo</th>
+    <th>manca</th>
+  </tr>
+</thead>
+  <tbody>
+<% @products.each do |prod| %>
+    <tr id=prod<%=prod.id%> >
+      <td><%= prod.name %></td>
+      <td><%= prod.price %></td>
+      <td><%= prod.time_offer%></td>
+      <%if can? :crud_prod, prod%>
+      <td> <%= link_to 'edit', edit_store_product_path(@show,prod) %>
+      <td> <%= link_to 'destroy', store_product_path(@show,prod), data: { confirm: "Are you sure?" }, method: :delete %></td>
+      <%end%>
+      <td><%=link_to 'show',store_product_path(@show,prod) %> </td>
+    </tr>
+  <% end %>
+</tbody>
+
+</table>
+</div>
+<div id=prova >
+</div>
+<%if can? :new, Product%>
+<div id='new_product'>
+  <%= link_to 'Crea prodotto', new_store_product_path(params[:id]), remote: true, class: "waves-effect waves-light btn" %> <br/>
+</div>
+<%end%>
+
+
+<%= render 'comments/index' %>
+
+<% if can? :create, Comment.new(store_id: @show.id) %>
+<%= render 'comments/new' %>
+<% end %>
+<h1> Foto</h1>
+<%if @show.pictures.first!=nil%>
+
+<div class="carousel" >
+
+  <%@show.pictures.each do |p|%>
+
+  <%= link_to image_tag(p.image.superpic.url), show_photo_store_path(@show.id,p.id),class: "carousel-item" %>
+
+  <%end%>
+</div>
+ <%else%>
+   <p>NESSUNA FOTO DISPONIBILE <i class="material-icons">sentiment_very_dissatisfied</i></p>
+  <%end%>
+
+
+
+<% if can? :create_photo, @show %>
+
+
+<%= link_to "aggiungi foto", new_photo_store_path(@show.id)%> <br>
+<%end%>
+
+<%if can? :addadmin,@show %>
+<h4>Aggiungi un amministratore </h4>
+<% if flash[:errors] %> <%= flash[:errors] %> <%end %>
+<%= form_for :admin, url: addadmin_store_path(params[:id]), method: :post do |f| %>
+  <%= f.label :username %>
+  <%= f.text_field :username %>
+  <%= f.submit "aggiungi",class:"waves-effect waves-light btn"  %> <br>
+<% end %>
+<%end%>
+<%if can? :leave_store, @show%>
+<br/>
+<%= button_to 'lascia negozio', leave_store_path, method: :get,class: "waves-effect waves-light btn"%>
+<br/>
+<%end%>
+<%if can? :change_admin, @show%>
+<%= form_for :role, url: change_admin_store_path do |f| %>
+  <h4> Cambia amministratore </h4>
+  <% s=@show.admin.where("Works.accept = ?", true) %>
+  <%= select_tag "user_id", options_from_collection_for_select(s, "id", "username", @show.owner_id), onchange: "this.form.submit()",data: { confirm: "Are you sure?" } , class: "lwaves-effect waves-light btn"%>
+<% end %>
+<%end%> <br/>
+
+<%if can? :owner_ab, @show%>
+<%= link_to 'destroy', store_path(@show), data: { confirm: "Are you sure?" }, method: :delete,class: "waves-effect waves-light btn" %>
+<%= link_to 'edit', edit_store_path(@show), class: "waves-effect waves-light btn" %>
+
+<%end%>
+
+<%if can? :report, @show.owner%>
+<div id= "report">
+  <%= button_to "segnala proprietario" , show_report_user_path(@show.owner_id), method: :get, remote: true,class: "waves-effect waves-light btn"%>
+</div>
+<%end%>
+<br>
+<br>
+<br>

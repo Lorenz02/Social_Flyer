@@ -1,0 +1,31 @@
+<h1>
+<%if params[:view]== 'distance'%>
+  Lista dei negozi in oridine di distanza
+<%elsif params[:view]== 'like'%>
+  Lista dei nego in ordine di gradimento
+<%end%>
+</h1>
+<%if @stores.count == 0%>
+  <h5>Nessun negozio torvato</h5>
+<%end%>
+<table class="striped">
+
+<%if params[:view]== 'distance'%>
+  <% @distance.sort_by {|key,value| value}.each do |store| %>
+    <tr>
+      <th><%= render 'stores/store', store: store[0] %></th>
+      <th>Distanza<br/><h3><span> <%=store[1]%> Km</span></h3></th>
+  </tr>
+  <%end%>
+<%elsif params[:view]== 'like'%>
+  <% @like.sort_by {|key,value| value}.reverse.each do |store| %>
+    <tr>
+    <th><%= render 'stores/store', store: store[0] %></th>
+    <th>Gradimento<br/><span> <%=store[1]%><span></th>
+  </tr>
+  <%end%>
+
+<%end %>
+</table>
+<br/><br/>
+<%= render 'shared/advanced_search' %>

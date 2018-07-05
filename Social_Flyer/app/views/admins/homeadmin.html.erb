@@ -1,0 +1,19 @@
+<h3>controlla questi report</h3>
+<% @reports.each do |r| %>
+   <table class="highlight">
+      <thead>
+        <tr>
+          <th >Inviato da</th>
+          <th >a</th>
+          <th >motivazione</th>
+          <th> gestisci<th>
+          </tr>
+      </thead>
+       <tr>
+         <td><%= User.find(r.reporter_id).name%></td>
+         <td><%=link_to User.find(r.reported_id).name,user_path(r.reported_id)%> </td>
+         <td><%=r.motivation%></td>
+         <td><%=button_to "vai al ban",ban_path(r.reported_id),method: :get%></td>
+       </tr>
+   </table>
+<%end%>

@@ -1,0 +1,43 @@
+<%= form_for (prod), url: path do |f| %>
+  <% if prod.errors.any? %>
+    <ul>
+    <% prod.errors.full_messages.each do |msg| %>
+    <li><%= msg %></li>
+    <% end %>
+  </ul>
+  <% end %>
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name, autofocus: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :price %><br />
+    <%= f.number_field :price ,min: 0, max:2000000  %>
+  </div>
+
+  <div class="field">
+    <%= f.label :image %><br>
+    <%= f.file_field :image %>
+  </div>
+
+  <div class="field">
+    <%= f.label :duration_h %><br />
+    <%= f.number_field :duration_h,min: 0, max:2000000   %>
+  </div>
+
+  <div class="field">
+    <%= f.label :type_p %> <br/>
+    <%= f.text_field :type_p %>
+  </div>
+
+  <div class="field">
+    <%= f.label :feature %><br />
+    <%= f.text_area :feature   %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Crea prodotto",class: "waves-effect waves-light btn" %>
+    <%= link_to 'back', store_path(params[:store_id]) ,class: "waves-effect waves-light btn" %>
+  </div>
+  <%end%>
